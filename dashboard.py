@@ -2,7 +2,7 @@ import sqlite3
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import HTMLResponse
 
 
@@ -86,6 +86,65 @@ def list_debates() -> str:
     )
 
     return html
+
+
+@app.get("/api/debates")
+def api_list_debates(limit: int = Query(100, ge=1, le=500)) -> list:
+    """
+    Return recent debates as JSON: id, created_at, topic, transcript_length.
+    Use ?limit=20 to cap the number of results.
+    """
+    if not DB_PATH.exists():
+        raise HTTPException(status_code=503, detail="Database not found. Run main.py first.")
+    with _get_conn() as conn:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            SELECT id, created_at, topic,
+                   LENGTH(transcript) AS transcript_length
+            FROM debates
+            ORDER BY id DESC
+            LIMIT ?
+            """,
+            (limit,),
+        )
+        rows = cur.fetchall()
+    return [
+        {
+            "id": r["id"],
+            "created_at": r["created_at"],
+            "topic": r["topic"],
+            "transcript_length": r["transcript_length"] or 0,
+        }
+        for r in rows
+    ]
+
+
+@app.get("/api/stats")
+def api_stats() -> dict:
+    """
+    Return aggregate stats: total_debates, latest_debate_at, avg_transcript_length.
+    """
+    if not DB_PATH.exists():
+        raise HTTPException(status_code=503, detail="Database not found. Run main.py first.")
+    with _get_conn() as conn:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            SELECT
+                COUNT(*) AS total_debates,
+                MAX(created_at) AS latest_debate_at,
+                AVG(LENGTH(transcript)) AS avg_transcript_length
+            FROM debates
+            """
+        )
+        row = cur.fetchone()
+    total = row["total_debates"] or 0
+    return {
+        "total_debates": total,
+        "latest_debate_at": row["latest_debate_at"],
+        "avg_transcript_length": round(row["avg_transcript_length"] or 0, 1),
+    }
 
 
 @app.get("/debates/{debate_id}", response_class=HTMLResponse)
