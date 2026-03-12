@@ -120,6 +120,28 @@ def api_list_debates(limit: int = Query(100, ge=1, le=500)) -> list:
     ]
 
 
+@app.get("/api/debates/{debate_id}")
+def api_get_debate(debate_id: int) -> dict:
+    """Return a single debate as JSON (id, created_at, topic, transcript)."""
+    if not DB_PATH.exists():
+        raise HTTPException(status_code=503, detail="Database not found. Run main.py first.")
+    with _get_conn() as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT id, created_at, topic, transcript FROM debates WHERE id = ?",
+            (debate_id,),
+        )
+        row = cur.fetchone()
+    if row is None:
+        raise HTTPException(status_code=404, detail="Debate not found.")
+    return {
+        "id": row["id"],
+        "created_at": row["created_at"],
+        "topic": row["topic"],
+        "transcript": row["transcript"] or "",
+    }
+
+
 @app.get("/api/stats")
 def api_stats() -> dict:
     """

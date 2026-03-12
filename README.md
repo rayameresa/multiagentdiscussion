@@ -143,8 +143,14 @@ uvicorn dashboard:app --reload --port 8000
 **Dashboard API (JSON):**
 
 - `GET /api/debates?limit=100` — list of recent debates with `id`, `created_at`, `topic`, `transcript_length`. Use `limit` (1–500) to control how many are returned.
+- `GET /api/debates/{id}` — single debate as JSON (id, created_at, topic, transcript).
 - `GET /api/stats` — aggregate stats: `total_debates`, `latest_debate_at`, `avg_transcript_length`.
 
 You can keep `python main.py` running in one terminal to continuously generate
 new debates while the dashboard is open in your browser.
+
+### 9. Code review on pull requests
+
+Pull requests against `main` are automatically reviewed by the Code Review Agent.
+See `.github/workflows/code-review.yml` and `CODE_REVIEW_INTEGRATION.md` for details.
 
