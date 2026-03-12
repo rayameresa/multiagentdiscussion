@@ -149,3 +149,8 @@ uvicorn dashboard:app --reload --port 8000
 You can keep `python main.py` running in one terminal to continuously generate
 new debates while the dashboard is open in your browser.
 
+### 9. Code review on pull requests
+
+Pull requests against `main` are automatically reviewed by the Code Review Agent.
+See `.github/workflows/code-review.yml` and `CODE_REVIEW_INTEGRATION.md` for details.
+
