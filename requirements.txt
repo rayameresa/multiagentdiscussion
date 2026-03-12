@@ -1,0 +1,7 @@
+langgraph
+langchain
+langchain-community
+langchain-openai
+ddgs
+fastapi
+uvicorn[standard]
