@@ -88,10 +88,6 @@ def list_debates() -> str:
     return html
 
 
-# ---------------------------------------------------------------------------
-# JSON API (new in this feature branch)
-# ---------------------------------------------------------------------------
-
 @app.get("/api/debates")
 def api_list_debates(limit: int = Query(100, ge=1, le=500)) -> list:
     """
@@ -165,8 +161,9 @@ def api_stats() -> dict:
             """
         )
         row = cur.fetchone()
+    total = row["total_debates"] or 0
     return {
-        "total_debates": row["total_debates"] or 0,
+        "total_debates": total,
         "latest_debate_at": row["latest_debate_at"],
         "avg_transcript_length": round(row["avg_transcript_length"] or 0, 1),
     }
