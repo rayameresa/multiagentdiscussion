@@ -140,6 +140,12 @@ uvicorn dashboard:app --reload --port 8000
 - `http://localhost:8000/` — list of recent debates
 - Click a debate to see its full transcript.
 
+**Dashboard JSON API:**
+
+- `GET /api/debates?limit=100` — list of debates (id, created_at, topic, transcript_length). Use `limit` (1–500) to control how many are returned.
+- `GET /api/debates/{id}` — single debate as JSON (id, created_at, topic, transcript).
+- `GET /api/stats` — aggregate stats: total_debates, latest_debate_at, avg_transcript_length.
+
 You can keep `python main.py` running in one terminal to continuously generate
 new debates while the dashboard is open in your browser.
 
